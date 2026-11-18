@@ -1,0 +1,21 @@
+// T2a-2 解析式抗锯齿的硬边（材质 Custom 节点代码）【未实测：需在 UE 5.8 里编译和看图】
+//
+// 思路：Ramp 阶跃、SDF 阈值比较、头发高光阈值，本质都是 step(Threshold, X)。
+// step 在屏幕上只有 0/1，镜头一动边界就在像素间跳来跳去，TSR 抖动采样会把它变成闪烁。
+// 改为过渡宽度 = 1 个像素的线性斜坡：宽度用 fwidth(X)（X 在屏幕上一个像素内的变化量）来定，
+// 所以离得远时过渡自动变宽，离得近时依旧是硬边。离线原型见 tests/test_flicker_metric.py：
+// 同一个移动硬边，这种做法的闪烁约为点采样的 1/10（合成数据，不代表 UE 实际画面）。
+//
+// Custom 节点 Output Type = CMOT Float1，输入：
+//   X          (float)  被比较的量，例如 N·L、SDF 采样值、高光强度
+//   Threshold  (float)  阈值
+//   Softness   (float)  美术可调的额外软化，以"像素"为单位；0 = 只做抗锯齿
+//   Enable     (float)  1 = 解析式抗锯齿；0 = 原始 step（用于 A/B 对比）
+//
+// 注意：
+// - fwidth 需要 X 在 2×2 像素块里连续；X 如果来自分支或贴图 mip 跳变，会出现伪边。
+// - 用在 SDF 时，X 是采样到的阈值，比较对象是光向参数，两者都可能随屏幕变化，用 fwidth(X - Threshold)。
+float v = X - Threshold;
+float w = max(fwidth(v), 1e-5) * (1.0 + max(Softness, 0.0));
+float smoothStep = saturate(v / w + 0.5);
+return Enable > 0.5 ? smoothStep : step(0.0, v);

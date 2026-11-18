@@ -1,0 +1,11 @@
+{
+  "FileVersion": 3,
+  "Version": 1,
+  "VersionName": "0.1",
+  "FriendlyName": "Face Wipe UI",
+  "Description": "Runtime UMG wipe control for FaceProjectActor.",
+  "Category": "User Interface",
+  "CanContainContent": false,
+  "Plugins": [{"Name": "FaceKeyLight", "Enabled": true}],
+  "Modules": [{"Name": "FaceWipeUI", "Type": "Runtime", "LoadingPhase": "Default"}]
+}

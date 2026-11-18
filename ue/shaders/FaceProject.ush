@@ -1,0 +1,28 @@
+// Project format: R=mirror(G), G=left-side threshold angle/pi, B=coverage, A=1.
+// DirectionToLight, FaceForward and FaceRight are normalized world-space vectors.
+// Custom output Float3. Non-Color sampling is required.
+float front = dot(DirectionToLight, FaceForward);
+float side = dot(DirectionToLight, FaceRight);
+float planarLength = max(length(float2(front, side)), 1e-6);
+float angle = acos(clamp(front / planarLength, -1.0, 1.0)) / PI;
+float threshold = side >= 0.0 ? Project.g : Project.r;
+float signedBoundary = threshold - angle;
+float width = max(max(SoftDegrees, 0.0) / 180.0, 1e-5);
+width = max(width, 0.5 * fwidth(signedBoundary) * saturate(EnableAA));
+float blend = smoothstep(-width, width, signedBoundary);
+float lit = blend * saturate(Project.b);
+float3 shaded = lerp(DarkColor, LightColor, lit);
+float3 halfVector = normalize(DirectionToLight + ViewDirection + 1e-6);
+float highlight = pow(saturate(dot(normalize(WorldNormal), halfVector)), max(HighlightPower, 1.0));
+shaded += max(HighlightStrength, 0.0) * highlight * lit;
+if (DebugMode > 1.5) return Project.rgb;
+if (DebugMode > 0.5) return lit.xxx;
+if (CompareEnable > 0.5)
+{
+    float baseline = step(0.0, dot(normalize(WorldNormal), DirectionToLight));
+    float3 oldColor = lerp(DarkColor, LightColor, baseline);
+    float divider = 1.0 - step(max(fwidth(ScreenUV.x), 1e-5), abs(ScreenUV.x - WipeX));
+    float3 compared = ScreenUV.x < WipeX ? oldColor : shaded;
+    return lerp(compared, float3(1.0,1.0,1.0), divider);
+}
+return shaded;

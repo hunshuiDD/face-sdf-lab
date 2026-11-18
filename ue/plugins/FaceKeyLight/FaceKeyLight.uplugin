@@ -1,0 +1,10 @@
+{
+  "FileVersion": 3,
+  "Version": 1,
+  "VersionName": "0.1",
+  "FriendlyName": "Face Key Light",
+  "Description": "Per-character face light selection and transition.",
+  "Category": "Rendering",
+  "CanContainContent": false,
+  "Modules": [{"Name": "FaceKeyLight", "Type": "Runtime", "LoadingPhase": "Default"}]
+}

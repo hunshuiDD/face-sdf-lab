@@ -1,0 +1,17 @@
+// Hard boundary: the project's AnalyticStep linear coverage, Softness=0.
+// An authored smooth ramp retains its angular width. Integrate its smoothstep
+// across the same screen footprint using the antiderivative of 3t^2 - 2t^3.
+float feather = max(SoftDegrees, 0) / 180.0;
+float pixel = max(fwidth(signedBoundary), 1e-5);
+float blend;
+if (feather <= 1e-6) {
+    blend = EnableAA > 0.5 ? saturate(signedBoundary / pixel + 0.5) : step(0, signedBoundary);
+} else {
+    blend = smoothstep(-feather, feather, signedBoundary);
+    if (EnableAA > 0.5 && pixel > feather * .002) {
+        float2 t = (signedBoundary + feather + float2(-.5,.5)*pixel)/(2*feather);
+        float2 z = saturate(t);
+        float2 area = z*z*z*(1-.5*z) + max(t-1,0);
+        blend = saturate((area.y-area.x) * (2*feather/pixel));
+    }
+}

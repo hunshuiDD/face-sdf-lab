@@ -1,0 +1,19 @@
+// P0-1 分屏擦除对比（材质 Custom 节点代码）【未实测：需在 UE 5.8 材质编辑器里编译】
+//
+// 用法（建议做成 Material Function MF_SplitWipe）：
+//   Custom 节点 Output Type = CMOT Float3，输入：
+//     A        (float3)  基线结果，左半屏显示
+//     B        (float3)  新方案结果，右半屏显示
+//     UV       (float2)  ScreenPosition 节点的 ViewportUV 输出
+//     WipeX    (float)   0..1，分界位置；接 MPC_Compare.WipeX，方便蓝图 / UMG 滑块驱动
+//     LineW    (float)   分界线宽度（像素），例如 2
+//     LineCol  (float3)  分界线颜色
+//   Code 粘贴下面的函数体。
+//
+// 说明：分界线宽度按屏幕导数换算成 UV 宽度，所以不同分辨率下都是 LineW 个像素宽。
+float px = max(fwidth(UV.x), 1e-6);
+float d = UV.x - WipeX;
+float3 c = d < 0.0 ? A : B;
+// 变量名避开 HLSL 关键字 line（几何着色器图元类型）
+float edgeW = 1.0 - saturate(abs(d) / (px * max(LineW, 0.5)) - 0.5);
+return lerp(c, LineCol, edgeW);

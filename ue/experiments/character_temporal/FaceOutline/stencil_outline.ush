@@ -1,0 +1,12 @@
+// Diagnostic outer contour for stencil value 1. Radius is in render pixels.
+float2 uv = GetDefaultSceneTextureUV(Parameters, PPI_CustomStencil);
+float2 stepUV = GetSceneTextureBufferSize(PPI_CustomStencil).zw * Radius;
+const float2 directions[8] = {float2(1,0),float2(-1,0),float2(0,1),float2(0,-1),
+    float2(.7071,.7071),float2(-.7071,.7071),float2(.7071,-.7071),float2(-.7071,-.7071)};
+float hit = 0;
+[unroll] for (int k=0;k<8;k++) {
+    float2 p = ClampSceneTextureUV(uv+directions[k]*stepUV,PPI_CustomStencil);
+    float value = SceneTextureLookup(p,PPI_CustomStencil,false).r;
+    hit = max(hit,1-step(.5,abs(value-1)));
+}
+return lerp(Color.rgb,float3(1,0,1),hit * step(.5,abs(Stencil.r-1)));

@@ -1,0 +1,22 @@
+{
+  "head": "GEO-head_stylized",
+  "size": [
+    1024,
+    1024
+  ],
+  "source_world_z_cut": 0.04535,
+  "covered_texels": 666750,
+  "mask_texels": 85812,
+  "changed_g_texels": 1775,
+  "protected_texels": 97116,
+  "protected_rg_changed": 0,
+  "covered_rg_changed_above_cutoff": 0,
+  "raw_strong_changed_g": 6952,
+  "nearest_changed_z_below_cut": 0.04465348273515701,
+  "nearest_changed_z_above_cut": 0.04604243114590645,
+  "source_sha256": {
+    "raw": "9ef7598d5c1af97e23409688648154b8e628aef54e65983e173cad8269b18fb9",
+    "strong": "3d8efa2a3f9eeef05430a33fcebc6fadc5f243312e0465c7ee63673471c56a91"
+  },
+  "output_sha256": "10e1f78c5290952631525da867055d71322e4c8c2a9c640d9c16d6575d1974bb"
+}
