@@ -135,4 +135,4 @@ Face SDF Lab bakes angular shadow thresholds from a CC0 stylized head in Blender
 
 `GEO-head_stylized` 来自 Blender Studio 和 Blender 社区的 Human Base Meshes v1.4.1，资产以 CC0 提供。仓库内几何数组与 UE 导入网格由该对象提取。 [Blender 官方资产页](https://www.blender.org/download/demo-files/) · [随包 CC0 说明](tools/face_sdf/inputs/bundle_README.txt)
 
-许可：待定
+许可：代码与文档以 [MIT](LICENSE) 发布；`GEO-head_stylized` 及由其提取的几何仍按原始 CC0 条款。
