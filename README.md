@@ -1,5 +1,7 @@
 # 个人面部 SDF 光照与角色时域稳定
 
+[![Python tests](https://github.com/hunshuiDD/face-sdf-lab/actions/workflows/tests.yml/badge.svg)](https://github.com/hunshuiDD/face-sdf-lab/actions/workflows/tests.yml)
+
 从一个 CC0 静态头模烘焙逐像素的面部光照角阈值，在 Unreal Engine 中用主光方向驱动阴影线，再用同轨视口和超采样参考量化面部与轮廓的时域误差。
 
 ![同一 CC0 头模的六光向结果](examples/six_directions.png)
@@ -44,6 +46,7 @@ python -B tools/gpu_csv_report.py baseline.csv --compare candidate.csv --json gp
 
 ```powershell
 uv run --no-project --with numpy --with pillow -- python -B -m unittest discover -s tests
+uv run --no-project --with-requirements requirements-dev.txt python -m pytest -q tests
 ```
 
 ### Blender 烘焙
