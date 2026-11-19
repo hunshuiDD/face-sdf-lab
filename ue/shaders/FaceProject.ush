@@ -8,6 +8,8 @@ float angle = acos(clamp(front / planarLength, -1.0, 1.0)) / PI;
 float threshold = side >= 0.0 ? Project.g : Project.r;
 float signedBoundary = threshold - angle;
 float width = max(max(SoftDegrees, 0.0) / 180.0, 1e-5);
+// EnableAA is the effective MID weight. The measured TSR profile supplies 0,
+// preserving the authored angular width; other AA modes keep the requested weight.
 width = max(width, 0.5 * fwidth(signedBoundary) * saturate(EnableAA));
 float blend = smoothstep(-width, width, signedBoundary);
 float lit = blend * saturate(Project.b);

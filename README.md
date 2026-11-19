@@ -96,7 +96,7 @@ Copy-Item -LiteralPath $package -Destination $hostPlugins -Recurse
 
 ## 已实测
 
-以下为 2026-11-18 的既有记录。**UE / Blender 未在本次导出中重跑。**
+以下记录使用 UE 5.8.3。默认 3° 的 TSR 加宽实验重新采集了基线、原算法、参考和三个候选；其余各项沿用原实验。
 
 | 检查 | 结果及适用条件 |
 |---|---|
@@ -121,6 +121,20 @@ Copy-Item -LiteralPath $package -Destination $hostPlugins -Recurse
 
 暂定门槛为误差闪烁下降 30%。八组中仅独立试样的 0°、关闭引擎 AA 组合达标。试样在硬边用线性覆盖，在软边对 smoothstep 做像素区间积分。
 
+### 默认 3° 的 TSR 加宽权重
+
+同一 CC0 头模、+90° 主光、100% 屏幕比例。相对 TSR 下无额外加宽的基线，只有权重 0 达到本轮「闪烁不升高」的要求。该档保留原有 3° 软边，32/32 张 PNG 与基线逐张同哈希。两档非零权重都未取得下降。 [同帧实图](examples/tsr_width.png) · [复验命令与掩码定义](ue/experiments/character_temporal/README.md#tsr-加宽权重)
+
+| 额外加宽权重 | 眼鼻嘴误差闪烁 | 相对基线 | 头部外轮廓误差闪烁 | 相对基线 |
+|---|---:|---:|---:|---:|
+| 基线 0 | 0.006497226 | — | 0.004987150 | — |
+| 原算法 1 | 0.006863604 | +5.6390% | 0.005051017 | +1.2806% |
+| 1/4 | 0.006559249 | +0.9546% | 0.005000933 | +0.2764% |
+| 1/16 | 0.006518942 | +0.3342% | 0.004987296 | +0.0029% |
+| TSR 回退 0 | 0.006497226 | 0.0000% | 0.004987150 | 0.0000% |
+
+同张头模 1024² 固定近景、3°、+90°、TSR 历史比例 200%，RTX 5080 Laptop。仅本任务 UE 进程运行时采集 18 段，各候选三对 AB / BA / AB。整帧 GPUTime 按各段 P50 再取三轮中位数，1/4 为 1.0308 → 1.0296 ms（−0.116%），1/16 为 1.0308 → 1.0312 ms（+0.039%），回退为 1.0296 → 1.0311 ms（+0.146%）。三个候选的配对差值方向均不一致，均低于 2% 分辨门槛。 [采集与统计脚本](ue/experiments/character_temporal/TsrWidthPerf/)
+
 ## 已知限制
 
 - 单角阈值只保存一次亮到暗的转换，耳内、背面与极端光向需逐镜头审阅。R/G 镜像依赖几何及 UV 的左右对应，非对称头模需要双侧编码。
@@ -129,7 +143,7 @@ Copy-Item -LiteralPath $package -Destination $hostPlugins -Recurse
 
 ## English summary
 
-Face SDF Lab bakes angular shadow thresholds from a CC0 stylized head in Blender Cycles and consumes them in UE 5.8.3 with per-actor key light selection and a screen-space wipe. Matched viewport sequences measure flicker against supersampled references. With the default 3° transition, analytic widening reduced face-region flicker by 10.53% with engine AA disabled and increased it by 5.64% with TSR. Three paired GPU captures found no consistent whole-frame timing difference above 2%.
+Face SDF Lab bakes angular shadow thresholds from a CC0 stylized head in Blender Cycles and consumes them in UE 5.8.3 with per-actor key light selection and a screen-space wipe. At the default 3° transition, full analytic widening reduced face-region flicker by 10.53% with engine AA disabled and increased it by 5.64% with TSR. The opt-in TSR preset disables the extra width and exactly matches the no-widening baseline in all 32 frames. Both tested nonzero caps still increased face-region flicker.
 
 ## 致谢
 

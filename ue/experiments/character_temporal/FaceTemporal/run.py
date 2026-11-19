@@ -20,18 +20,27 @@ def verify(out,cfg):
         with Image.open(out/f"frame_{i:03d}.png") as im:
             assert im.size==(cfg["size"],cfg["size"]),im.size
             im.verify()
-for name in sys.argv[1:] or cases:
+names = sys.argv[1:] or list(cases)
+if names == ["--tsr-width"]:
+    cases = {"reference":cases["production_ref4"], "baseline":cases["production_tsr_off"],
+             "original":cases["production_tsr_on"]}
+    for name, cap in (("quarter", 0.25), ("sixteenth", 0.0625), ("bypass", 0.0)):
+        cases[name] = {**cases["original"], "tsr_width": cap}
+    names = list(cases)
+run_dir = Path(os.environ.get("TA_FACE_RUNS", root/"runs"))
+for name in names:
     cfg=cases[name]
-    out=root/"runs"/name
+    out=(run_dir/name).resolve()
     out.mkdir(exist_ok=True,parents=True)
     if (out/"run.json").exists():verify(out,cfg);continue
     (out/"case.json").write_text(json.dumps(cfg),encoding="utf8")
     size=cfg["size"]
     cmd=[str(exe),str(project),"/Game/FaceProject/L_PublicFace","-game","-RenderOffscreen","-ForceRes","-dx12","-sm6",
          "-NoSplash","-nosound","-NoP4","-Unattended","-UseFixedTimeStep","-FPS=24",f"-ResX={size}",f"-ResY={size}",
-         f"-abslog={out/'ue.log'}",f'-ExecCmds=py "{(root / "capture.py").as_posix()}"']
+         f"-abslog={out/'ue.log'}","-ExecCmds=py __import__('runpy').run_path(__import__('os').environ['FACE_TEMPORAL_SCRIPT'])"]
     with (out/"stdout.log").open("wb") as stream:
-        run=subprocess.run(cmd,stdout=stream,stderr=subprocess.STDOUT,env={**os.environ,"FACE_TEMPORAL_OUT":str(out)},
+        run=subprocess.run(cmd,stdout=stream,stderr=subprocess.STDOUT,env={**os.environ,"FACE_TEMPORAL_OUT":str(out),
+                           "FACE_TEMPORAL_SCRIPT":str(root/"capture.py")},
                            creationflags=subprocess.CREATE_NO_WINDOW,timeout=195)
     assert run.returncode==0,run.returncode
     verify(out,cfg)

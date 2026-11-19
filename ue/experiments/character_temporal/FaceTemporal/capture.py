@@ -39,6 +39,11 @@ settings={"r.AntiAliasingMethod":cfg["aa"],"r.ScreenPercentage":100,"r.DynamicRe
           "r.MotionBlurQuality":0,"r.VSync":0,"r.BloomQuality":0,"r.EyeAdaptationQuality":0,
           "r.TonemapperGamma":2.2,"r.Tonemapper.Sharpen":0,"r.OneFrameThreadLag":0,"t.IdleWhenNotForeground":0}
 for name,v in settings.items():cmd(f"{name} {v}")
+if "tsr_width" in cfg:
+    import sys
+    sys.path.insert(0, str(Path(__file__).resolve().parents[3] / "python"))
+    from tsr_width import apply_face_width
+    mat_params["EnableAA"] = apply_face_width(mid, cfg["analytic"], cfg["tsr_width"])
 cmd("stat none")
 def xyz(v):return [v.x,v.y,v.z]
 report={"engine":u.SystemLibrary.get_engine_version(),"case":cfg,"frames":[],"status":"RUNNING",
